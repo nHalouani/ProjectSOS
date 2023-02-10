@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+	<title>SOS</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1" />
+	<link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/elegant-icons.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+	
+	<script type="text/javascript">
+		var user = '{{request.user}}'
+
+		function getToken(name) {
+		    var cookieValue = null;
+		    if (document.cookie && document.cookie !== '') {
+		        var cookies = document.cookie.split(';');
+		        for (var i = 0; i < cookies.length; i++) {
+		            var cookie = cookies[i].trim();
+		            // Does this cookie string begin with the name we want?
+		            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+		                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+		                break;
+		            }
+		        }
+		    }
+		    return cookieValue;
+		}
+		var csrftoken = getToken('csrftoken')
+
+		function getCookie(name) {
+		    // Split cookie string and get all individual name=value pairs in an array
+		    var cookieArr = document.cookie.split(";");
+
+		    // Loop through the array elements
+		    for(var i = 0; i < cookieArr.length; i++) {
+		        var cookiePair = cookieArr[i].split("=");
+
+		        /* Removing whitespace at the beginning of the cookie name
+		        and compare it with the given string */
+		        if(name == cookiePair[0].trim()) {
+		            // Decode the cookie value and return
+		            return decodeURIComponent(cookiePair[1]);
+		        }
+		    }
+
+		    // Return null if not found
+		    return null;
+		}
+		var cart = JSON.parse(getCookie('cart'))
+
+		if (cart == undefined){
+			cart = {}
+			console.log('Cart Created!', cart)
+			document.cookie ='cart=' + JSON.stringify(cart) + ";domain=;path=/"
+		}
+		console.log('Cart:', cart)
+	
+	</script>
+
+</head>
+<body>
+
+	<nav class="navbar navbar-expand-lg navbar-dark bg-drk">
+	  <div class="container-fluid">
+		<a class="navbar-brand" href=""><img src="{% static 'images/logoOns.png' %}" class="logo-sm"></a>
+	  	<a class="navbar-brand" href="{% url 'store' %}">SOS</a>
+	  		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+	    		<span class="navbar-toggler-icon"></span>
+	  		</button>
+	 
+
+	  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+	    <ul class="navbar-nav mr-auto">
+         {% if cat_menu %}
+			  <li>
+		   <!-- Basic dropdown -->
+		  
+				<button class="btn btn-primar dropdown-toggle mr-1 rounded-left rounded-right  " type="button" data-toggle="dropdown"
+  				aria-haspopup="true" aria-expanded="false" style="color:#00177b">Categories</button>
+ 
+	 		 <div class="dropdown-menu">
+			{% for item in cat_menu %}
+ 				 <a class="dropdown-item" href="{% url 'category' item%}">{{item}}</a>
+ 			{% endfor %}
+  <!--<div class="dropdown-divider"></div>
+  <a class="dropdown-item" href="#">Autres</a>
+</div>-->
+<!-- Basic dropdown -->
+	 		</li>
+	 	 {% endif %}
+	 <li class="nav-item active">
+		<a class="nav-link" href="{% url 'evenement' %}">Evènement <span class="sr-only">(current)</span></a>
+	  </li>
+	  <li class="nav-item active">
+		<a class="nav-link" href="{% url 'propos' %}">A propos de nous <span class="sr-only"></span></a>
+	  </li>
+	  <li class="nav-item active">
+		<a class="nav-link" href="{% url 'contact' %}">Contact <span class="sr-only"></span></a>
+	  </li>
+	  <li class="nav-item active">
+		<a class="nav-link" href="{% url 'dont' %}">Faire un Dont<span class="sr-only"></span></a>
+	  </li>
+	  
+	    </ul>
+	    <div class="form-inline my-2 my-lg-0">
+			
+	     	<!--<a href="#"class="btn btn-warning">Login</a>-->
+	     	{% if request.user.is_authenticated %}
+	     	<a href="{% url 'cart' %}">
+	    		<img  id="cart-icon" src="{% static 'images/cart.png' %}">
+	    	</a>
+			<p id="cart-total">{{cartItems}}</p>
+			{% else %}
+			<a href="/admin"class="btn btn-warning">Administration</a>
+			{% endif %}
+	    </div>
+	  </div>
+	</nav>
+
+     <div class="container contain">
+            <br>
+            {% block content %}
+
+
+            {% endblock content %}
+         </div>
+		 <br>
+		 <br>
+		 <!-- Footer -->
+	<section id="footer">
+		<div class="container">
+			<div class="row text-center text-xs-center text-sm-left text-md-left">
+				<div class="col-xs-12 col-sm-4 col-md-4">
+					<h1>SOS</h1>
+					<ul class="list-unstyled quick-links">
+						<li><a href="{% url 'store' %}"><i class="fa fa-angle-double-right"></i>Accueil</a></li>
+						<li><a href="{% url 'evenement' %}"><i class="fa fa-angle-double-right"></i>Evènement</a></li>
+						<li><a href="{% url 'propos' %}"><i class="fa fa-angle-double-right"></i>A propos</a></li>
+						
+						<li><a href="{% url 'contact' %}"><i class="fa fa-angle-double-right"></i>Contact</a></li>
+						<!-- <li><a href="{% url 'faq' %}"><i class="fa fa-angle-double-right"></i>FAQ</a></li> -->
+						
+						<!-- {% if request.user.is_authenticated %}
+						<li><a href="javascript:void();"><i class="fa fa-angle-double-right"></i>Déconnexion</a></li>
+						 {% else %}
+						 <li><a href="javascript:void();"><i class="fa fa-angle-double-right"></i> S'inscrire</a></li>
+                       {% endif %} -->
+					</ul>
+				</div>
+				<div class="col-xs-12 col-sm-4 col-md-4">
+					<h5>Newsletter</h5>
+		<form class="input-group">
+          <input type="text" class="form-control " placeholder="votre email..."
+            aria-label="votre email" aria-describedby="basic-addon2">
+          <div class="input-group-append">
+            <button class="btn btn-outline-success" type="button" href="{% url 'contact' %}">Souscrire</button>
+          </div>
+        </form>
+				</div>
+				<div class="col-xs-12 col-sm-4 col-md-4">
+					<h5>Politiques</h5>
+					<ul class="list-unstyled quick-links">
+						<!--<li><a href="javascript:void();"><i class="fa fa-phone"></i> +237691666113</a></li>
+						<li><a href="javascript:void();"><i class="fa fa-envelope"></i> email@gmail.com</a></li>-->
+						
+							<li><a href="{% url 'conditions-générales-de-ventes' %}"><i class="fa fa-angle-double-right"></i>Conditions générales de Dont</a></li>
+							<li><a href="{% url 'politique-de-confidentialité' %}"><i class="fa fa-angle-double-right"></i>Politique d'intégration'</a></li>
+							<!-- <li><a href="{% url 'politique-de-retour' %}"><i class="fa fa-angle-double-right"></i>Politique de retour</a></li>
+						 	<li><a href="{% url 'paiement-et-livraison' %}"><i class="fa fa-angle-double-right"></i>Paiement et livraison</a></li> -->
+						<li><a href="https://www.linkedin.com/mwlite/in/siaka-karl-45b219119" title="Design and developed by"><i class="fa fa-angle-double-right"></i>....</a></li>
+
+					</ul>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12 mt-2 mt-sm-5">
+					<ul class="list-unstyled list-inline social text-center">
+						<li class="list-inline-item"><a href="https://www.facebook.com/profile.php?id=100069135667652&mibextid=ZbWKwL"><i class="fa fa-facebook"></i></a></li>
+						<li class="list-inline-item"><a href="javascript:void();"><i class="fa fa-twitter"></i></a></li>
+						<li class="list-inline-item"><a href="javascript:void();"><i class="fa fa-instagram"></i></a></li>
+						<li class="list-inline-item"><a href="javascript:void();"><i class="fa fa-google-plus"></i></a></li>
+						<li class="list-inline-item"><a href="{%url 'contact'%}" target="_blank"><i class="fa fa-envelope"></i></a></li>
+					</ul>
+				</div>
+				</hr>
+			</div>	
+			
+		</div>
+	</section>
+	<!-- ./Footer -->
+
+
+        
+
+	<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+	<script type="text/javascript" src="{% static 'js/cart.js' %}"></script>
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	
+</body>
+</html>
